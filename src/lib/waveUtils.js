@@ -6,7 +6,7 @@ export const WAVE_STYLES = [
   { id: 'flat', label: 'Flat', frequency: 0.5, amplitude: 25 },
 ];
 
-// Mini SVG paths for the 5 style buttons
+// SVG paths for the 5 style buttons
 export const WAVE_STYLE_ICONS = {
   gentle: 'M 0 20 C 20 5, 40 35, 60 20 C 80 5, 100 35, 120 20',
   rolling: 'M 0 20 C 15 5, 30 35, 45 20 C 60 5, 75 35, 90 20 C 105 5, 120 35, 135 20',
@@ -39,12 +39,17 @@ export function generateWavePath(width, height, layer) {
     d += ` C ${cpx.toFixed(2)} ${p0.y.toFixed(2)}, ${cpx.toFixed(2)} ${p1.y.toFixed(2)}, ${p1.x.toFixed(2)} ${p1.y.toFixed(2)}`;
   }
 
-  // Close path to bottom
-  d += ` L ${width} ${height} L 0 ${height} Z`;
+  // FIX: Close path to the top if flipped, otherwise close to the bottom
+  if (flipped) {
+    d += ` L ${width} 0 L 0 0 Z`;
+  } else {
+    d += ` L ${width} ${height} L 0 ${height} Z`;
+  }
+
   return d;
 }
 
-export function generateSVG(width, height, layers, background) {
+export function generateSVG(width, height, layers, background = null) {
   const paths = [...layers]
     .reverse()
     .map(layer => {
@@ -58,7 +63,6 @@ export function generateSVG(width, height, layers, background) {
         const stops = layer.gradient.stops
           .map(s => `<stop offset="${s.offset}%" stop-color="${s.color}" />`)
           .join('');
-        // Horizontal gradient — left to right
         defs = `<defs><linearGradient id="${gradId}" x1="0%" y1="0%" x2="100%" y2="0%">${stops}</linearGradient></defs>`;
       }
 
@@ -66,9 +70,12 @@ export function generateSVG(width, height, layers, background) {
     })
     .join('\n');
 
-  // Uses width="100%" height="100%" to allow seamless scaling within the left panel's absolute bounds
+  const bgRect = background
+    ? `<rect width="${width}" height="${height}" fill="${background}" />`
+    : ''; // transparent by default
+
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="100%" height="100%" preserveAspectRatio="none">
-  <rect width="${width}" height="${height}" fill="transparent" />
+  ${bgRect}
 ${paths}
 </svg>`;
 }
