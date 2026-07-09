@@ -88,15 +88,15 @@ export function ControlPanel({
             <button
               key={style.id}
               onClick={() => handleStyleClick(style)}
-              className={`flex items-center justify-center px-2 border-2 rounded-[9px] transition-all h-8 cursor-pointer
+              className={`flex items-center justify-center px-2 rounded-[9px] transition-all h-8 cursor-pointer
                 ${
                   activeStyle === style.id
                     ? isDark
-                      ? 'border-stone-600 bg-white/20 border-none text-white'
-                      : 'bg-stone-200 border-none'
+                      ? ' bg-[#182635] '
+                      : 'bg-stone-200'
                     : isDark
-                      ? 'border-stone-600 text-white'
-                      : 'bg-white border-stone-200 hover:bg-stone-200'
+                      ? 'border-2 border-stone-600'
+                      : 'bg-white border-2 border-stone-200'
                 }`}
             >
               <svg
@@ -123,7 +123,7 @@ export function ControlPanel({
         <div className="flex gap-3">
           <button
             onClick={flipWaves}
-            className={`flex-1 flex items-center justify-center gap-3 px-4 py-1.5 border-2 rounded-[7px] text-[15px] font-semibold transition cursor-pointer ${
+            className={`flex-1 flex items-center justify-center gap-3 px-4 py-1.5 border-2 rounded-[7px] text-[15px] font-semibold transition cursor-pointer group ${
               isDark
                 ? 'bg-white border-none text-black hover:bg-white/90'
                 : 'bg-white border-stone-200 text-stone-800 hover:bg-stone-50'
@@ -300,26 +300,26 @@ export function ControlPanel({
 
       {/* Export Section with Colorful Background Gradient */}
       <div
-        className={`rounded-[8px] relative h-[150px] p-4 space-y-10 shadow-inner transition-all duration-300 bg-gradient-to-br from-cyan-200 via-blue-200 to-indigo-200 ${
-          isDark ? 'opacity-90' : ''
-        }`}
+        className={`rounded-[8px] relative h-[150px] p-4 space-y-10 shadow-inner transition-all duration-300 bg-gradient-to-br from-cyan-200 via-blue-200 to-indigo-200`}
       >
         {/* Animated gradient overlay for extra life */}
         <div
           className={`absolute inset-0 rounded-[8px] bg-gradient-to-tr from-transparent via-white/10 to-transparent animate-pulse pointer-events-none`}
         ></div>
 
-        <p className={`text-[14px] relative top-2 font-bold tracking-wide text-black!`}>Export</p>
-        <div className="flex gap-3  relative z-10">
+        <p className={`text-[14px] relative top-2 font-medium tracking-wide text-black! `}>
+          Download/Export
+        </p>
+        <div className="flex gap-8 relative z-10 px-8">
           <button
             onClick={downloadSVG}
-            className={`flex-1 py-2 border-none rounded-[5px] text-[14px] font-bold shadow-lg transition-all duration-200 active:scale-95 cursor-pointer bg-white/80 backdrop-blur-sm hover:bg-white text-purple-800 border-2  hover:border-purple-400`}
+            className={`flex-1 py-2 text-black!  border-none rounded-[5px] text-[14px] font-semibold active:scale-95 cursor-pointer bg-white`}
           >
             SVG
           </button>
           <button
             onClick={downloadPNG}
-            className={`flex-1 py-2 border-none rounded-[5px] text-[14px] font-bold shadow-lg transition-all duration-200 active:scale-95 cursor-pointer bg-white/80 backdrop-blur-sm hover:bg-white text-purple-800 border-2  hover:border-purple-400`}
+            className={`flex-1 py-2 text-black! border-none rounded-[5px] text-[14px] font-semibold  active:scale-95 cursor-pointer bg-white`}
           >
             PNG
           </button>

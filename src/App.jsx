@@ -10,7 +10,7 @@ function App() {
 
   return (
     <div
-      className={`h-screen w-screen flex overflow-hidden font-sans items-center justify-center p-6 relative transition-colors duration-300 ${isDark ? 'bg-black text-stone-200' : 'bg-[#F1F1F1] text-stone-800'}`}
+      className={`h-screen w-screen flex overflow-hidden font-outfit items-center justify-center p-6 relative transition-colors duration-300 ${isDark ? 'bg-black text-stone-200' : 'bg-[#F1F1F1] text-stone-800'}`}
     >
       {/* Absolute top header with state toggle */}
       <Header isDark={isDark} setIsDark={setIsDark} />
@@ -20,9 +20,9 @@ function App() {
         <div
           className={`flex-1 flex flex-col justify-between rounded-[8px] shadow-xs relative h-[600px] overflow-hidden p-10 transition-colors duration-300 ${isDark ? 'bg-[#0E141B] border border-neutral-800/80' : 'bg-white'}`}
         >
-          <div className="flex justify-between items-start w-full z-10">
+          <div className="flex justify-between items-start w-full z-10 relative right-2 bottom-5">
             <h1
-              className={`text-[26px] font-bold tracking-tight mt-1 transition-colors ${isDark ? 'text-white' : 'text-stone-900'}`}
+              className={`text-[30px]  font-semibold tracking-tight transition-colors ${isDark ? 'text-white' : 'text-stone-900'}`}
             >
               Generate SVG Waves
             </h1>
