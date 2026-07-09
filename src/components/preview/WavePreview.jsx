@@ -1,8 +1,9 @@
-export function WavePreview({ svgCode }) {
+export function WavePreview({ svgCode, height }) {
   return (
-    <div className="w-full h-full flex items-center justify-center bg-stone-100 rounded-xl border border-stone-200 overflow-hidden">
+    <div className="w-full h-full overflow-hidden bg-transparent">
       <div
-        className="w-full h-full [&>svg]:w-full [&>svg]:h-full [&>svg]:object-contain"
+        className="w-full h-full block"
+        style={{ lineHeight: 0 }}
         dangerouslySetInnerHTML={{ __html: svgCode }}
       />
     </div>

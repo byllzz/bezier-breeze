@@ -1,1 +1,9 @@
 @import "tailwindcss";
+
+@import url('https://fonts.googleapis.com/css2?family=Fontdiner+Swanky&display=swap');
+
+
+@theme {
+  --font-breeze: "Fontdiner Swanky",
+    serif;
+}

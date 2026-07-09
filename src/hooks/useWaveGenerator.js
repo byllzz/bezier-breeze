@@ -1,63 +1,104 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { generateSVG, SHAPES } from '../lib/waveUtils';
+import { generateSVG } from '../lib/waveUtils';
 
-const defaultLayer = i => ({
-  id: crypto.randomUUID(),
-  amplitude: 60,
-  frequency: 2,
-  phase: 0,
-  offsetY: 0.5,
-  color: '#6366f1',
-  gradient: null,
-  shape: 'sine',
-  flipped: false,
-});
+// Each layer gets slightly different amplitude/offsetY so stacking looks natural
+const makeLayer = i => {
+  const offsets = [0.58, 0.7, 0.8, 0.65, 0.75];
+  const amps = [65, 50, 38, 55, 42];
+  const freqs = [1.4, 1.6, 1.2, 1.8, 1.0];
+  const phases = [0, 1.1, 2.3, 0.6, 1.8];
+
+  const pinkBlue = [
+    {
+      stops: [
+        { offset: 0, color: '#f472b6' },
+        { offset: 100, color: '#93c5fd' },
+      ],
+    },
+    {
+      stops: [
+        { offset: 0, color: '#fb7185' },
+        { offset: 100, color: '#a5b4fc' },
+      ],
+    },
+    {
+      stops: [
+        { offset: 0, color: '#fda4af' },
+        { offset: 100, color: '#bfdbfe' },
+      ],
+    },
+    {
+      stops: [
+        { offset: 0, color: '#f9a8d4' },
+        { offset: 100, color: '#c7d2fe' },
+      ],
+    },
+    {
+      stops: [
+        { offset: 0, color: '#fecdd3' },
+        { offset: 100, color: '#ddd6fe' },
+      ],
+    },
+  ];
+
+  const idx = i % 5;
+  return {
+    id: crypto.randomUUID(),
+    amplitude: amps[idx],
+    frequency: freqs[idx],
+    phase: phases[idx],
+    offsetY: offsets[idx],
+    color: '#f472b6',
+    gradient: pinkBlue[idx],
+    opacity: 0.85,
+    flipped: false,
+  };
+};
 
 export function useWaveGenerator() {
   const [width, setWidth] = useState(800);
   const [height, setHeight] = useState(400);
   const [background, setBackground] = useState('#ffffff');
-  const [numWaves, setNumWaves] = useState(3);
-  const [activeLayerIdx, setActiveLayerIdx] = useState(0);
-  const [layers, setLayers] = useState(() => Array.from({ length: 3 }, (_, i) => defaultLayer(i)));
-
+  const [waveIntensity, setWaveIntensity] = useState(70);
+  const [numLayers, setNumLayers] = useState(3);
+  const [layers, setLayers] = useState(() => Array.from({ length: 3 }, (_, i) => makeLayer(i)));
   const [animating, setAnimating] = useState(false);
   const animFrameRef = useRef(null);
 
-  // keep layer count in sync
-  const setNumWavesSafe = useCallback(n => {
+  // Keep layer count in sync — new layers always use their own index preset
+  const setNumLayersSafe = useCallback(n => {
     const count = Math.min(5, Math.max(1, n));
-    setNumWaves(count);
+    setNumLayers(count);
     setLayers(prev => {
       if (count > prev.length) {
-        return [
-          ...prev,
-          ...Array.from({ length: count - prev.length }, (_, i) => defaultLayer(prev.length + i)),
-        ];
-      } else if (count < prev.length) {
-        return prev.slice(0, count);
+        const extras = Array.from({ length: count - prev.length }, (_, i) =>
+          makeLayer(prev.length + i),
+        );
+        return [...prev, ...extras];
       }
-      return prev;
+      return prev.slice(0, count);
     });
-    setActiveLayerIdx(prev => Math.min(prev, count - 1));
   }, []);
 
-  const updateActiveLayer = useCallback(
-    changes => {
-      setLayers(prev => prev.map((l, i) => (i === activeLayerIdx ? { ...l, ...changes } : l)));
-    },
-    [activeLayerIdx],
-  );
+  // Apply a wave style preset (frequency + amplitude) to ALL layers, offset per layer
+  const applyWaveStyle = useCallback(style => {
+    setLayers(prev =>
+      prev.map((l, i) => ({
+        ...l,
+        frequency: style.frequency + i * 0.15,
+        amplitude: style.amplitude - i * 8,
+      })),
+    );
+  }, []);
 
-  const flipActiveLayer = useCallback(() => {
-    updateActiveLayer({ flipped: !layers[activeLayerIdx]?.flipped });
-  }, [activeLayerIdx, layers, updateActiveLayer]);
+  const flipWaves = useCallback(() => {
+    setLayers(prev => prev.map(l => ({ ...l, flipped: !l.flipped })));
+  }, []);
 
   const toggleAnimation = useCallback(() => {
     setAnimating(prev => !prev);
   }, []);
 
-  // animation loop
   useEffect(() => {
     if (!animating) {
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
@@ -67,10 +108,11 @@ export function useWaveGenerator() {
     const step = now => {
       const delta = (now - lastTime) / 1000;
       lastTime = now;
+      // Each layer animates with its own speed based on its frequency
       setLayers(prev =>
         prev.map(l => ({
           ...l,
-          phase: l.phase + delta * 2, // smooth phase shift
+          phase: l.phase + delta * (1.5 + l.frequency * 0.3),
         })),
       );
       animFrameRef.current = requestAnimationFrame(step);
@@ -81,19 +123,33 @@ export function useWaveGenerator() {
 
   const randomizeAll = useCallback(() => {
     setLayers(prev =>
-      prev.map(l => ({
+      prev.map((l, i) => ({
         ...l,
-        amplitude: Math.floor(Math.random() * 80) + 20,
-        frequency: Math.random() * 3 + 0.5,
+        amplitude: Math.floor(Math.random() * 60) + 25 - i * 5,
+        frequency: Math.random() * 2.5 + 0.5,
         phase: Math.random() * Math.PI * 2,
-        offsetY: Math.random() * 0.6 + 0.2,
+        offsetY: 0.45 + i * 0.1 + Math.random() * 0.08,
         color: `hsl(${Math.random() * 360}, 70%, 60%)`,
         gradient: null,
       })),
     );
+    setWaveIntensity(Math.floor(Math.random() * 60) + 40);
   }, []);
 
-  const svgCode = generateSVG(width, height, layers, background);
+  const updateLayerColor = useCallback(color => {
+    setLayers(prev => prev.map(l => ({ ...l, color, gradient: null })));
+  }, []);
+
+  const updateLayerGradient = useCallback(gradient => {
+    setLayers(prev => prev.map(l => ({ ...l, gradient })));
+  }, []);
+
+  const svgCode = generateSVG(
+    width,
+    height,
+    layers.map(l => ({ ...l, amplitude: l.amplitude * (waveIntensity / 100) })),
+    background,
+  );
 
   const copySVG = async () => {
     await navigator.clipboard.writeText(svgCode);
@@ -120,9 +176,9 @@ export function useWaveGenerator() {
     img.onload = () => {
       ctx.drawImage(img, 0, 0);
       URL.revokeObjectURL(url);
-      canvas.toBlob(blob => {
+      canvas.toBlob(pngBlob => {
         const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
+        a.href = URL.createObjectURL(pngBlob);
         a.download = 'bezier-wave.png';
         a.click();
       }, 'image/png');
@@ -137,16 +193,18 @@ export function useWaveGenerator() {
     setHeight,
     background,
     setBackground,
-    numWaves,
-    setNumWaves: setNumWavesSafe,
-    activeLayerIdx,
-    setActiveLayerIdx,
+    waveIntensity,
+    setWaveIntensity,
+    numLayers,
+    setNumLayers: setNumLayersSafe,
     layers,
-    updateActiveLayer,
-    flipActiveLayer,
+    applyWaveStyle,
+    flipWaves,
     animating,
     toggleAnimation,
     randomizeAll,
+    updateLayerColor,
+    updateLayerGradient,
     svgCode,
     copySVG,
     downloadSVG,
