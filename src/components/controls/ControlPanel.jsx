@@ -59,7 +59,7 @@ export function ControlPanel({
 
   return (
     <div
-      className={`w-[280px] min-w-[300px] h-[615px] relative top-2 rounded-[8px] scrollbar-none flex overflow-hidden flex-col justify-between transition-colors duration-300 ${isDark ? 'bg-[#0E141B]' : 'bg-white border-l border-stone-100 text-stone-800'}`}
+      className={`w-[280px] min-w-[300px] h-[615px] relative top-2 rounded-[8px] scrollbar-none flex overflow-hidden flex-col justify-between transition-colors duration-300 ${isDark ? 'bg-[#0E141B]' : 'bg-white  text-stone-800'}`}
     >
       <div className="space-y-6 px-10 pt-8">
         {/* Master Sliders */}

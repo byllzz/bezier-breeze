@@ -57,9 +57,7 @@ export function DetailsPanel({
   return (
     <div
       className={`w-[220px] min-w-[220px] h-[600px]  rounded-[8px] flex flex-col overflow-hidden transition-colors duration-300 ${
-        isDark
-          ? 'bg-[#0E141B] border border-neutral-800/80'
-          : 'bg-white border border-stone-100 text-stone-800'
+        isDark ? 'bg-[#0E141B]' : 'bg-white text-stone-800'
       }`}
     >
       {/* Header */}

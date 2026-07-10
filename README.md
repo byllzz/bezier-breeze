@@ -5,11 +5,10 @@
 <h1 align="center">BézierBreeze</h1>
 
 <p align="center">
-  A smooth SVG wave generator built with React.
-Create layered, customizable wave backgrounds using cubic Bezier curves.
-Adjust intensity, layers, shapes, colors, and gradients — then export as SVG, PNG, or raw code.
+  A smooth, 4K-ready SVG wave generator built with React.<br />
+  Create layered, customizable wave backgrounds using cubic Bézier curves.<br />
+  Adjust intensity, layers, shapes, colors, and gradients - then export at full 4K resolution as SVG or PNG.
 </p>
-
 
 <p align="center">
   <a href="https://bezierbreeze.vercel.app">
@@ -18,82 +17,169 @@ Adjust intensity, layers, shapes, colors, and gradients — then export as SVG, 
 </p>
 
 <p align="center">
-  <img src="./public/previewLight.png" width="100%" alt="BézierBreeze Demo" />
-  <img src="./public/previewDark.png" width="100%" alt="BézierBreeze Demo" />
+  <img src="./public/previewLight.png" width="100%" alt="BézierBreeze Light Mode" />
+  <img src="./public/previewDark.png" width="100%" alt="BézierBreeze Dark Mode" />
 </p>
+
+---
 
 ## What is BézierBreeze?
 
-**BézierBreeze** is a free, open‑source SVG wave generator built with React. It uses smooth cubic Bézier curves to create layered, customisable wave patterns that you can use for website headers, backgrounds, dividers, or any design project.
+**BézierBreeze** is a free, open-source SVG wave generator built with React. It uses smooth cubic Bézier curves (400 steps per layer) to create silky, crisp wave patterns rendered at a 3840×2160 internal coordinate space - meaning every export is 4K-ready regardless of your screen size.
 
-Adjust the intensity, number of layers, and height of your waves with simple sliders. Choose from five different wave shapes (sine, square, triangle, sawtooth, random), flip individual layers, and even animate the waves for a live preview. Every wave can be filled with a solid colour or a gradient, and you can export your creation as an SVG file, a PNG image, or copy the raw SVG code to your clipboard.
+Adjust wave intensity (0–300), number of layers, and canvas height with simple sliders. Choose from five wave style presets, flip layers vertically, and animate waves live. Fill with solid colors or gradients and export as SVG or 4K PNG. Your entire session - sliders, colors, layers, theme - is automatically saved to localStorage and restored on your next visit.
 
-No sign‑ups, no ads, no servers – everything runs directly in your browser.
+No sign-ups, no ads, no servers - everything runs directly in your browser.
 
+---
 
 ## Features
 
-**Wave Intensity**
-A single slider controls the overall "waviness" (0–100%).
-At 0% the waves are completely flat; at 100% they reach their full amplitude.
+### Wave Controls
 
-**Multiple Layers**
-Add up to 5 independent wave layers.
-Each layer can have its own shape, color, gradient, flip state, and animation.
+**Wave Intensity (0–300)**
+A single slider controls overall waviness across three zones:
+- `0–100` - amplitude scales from flat to full height
+- `100–300` - frequency ramps from 1× up to 15×, producing 30+ visible crests at maximum
+
+**Multiple Layers (1–5)**
+Add up to 5 independent wave layers, each with its own amplitude, frequency, phase speed, vertical offset, color, and flip state.
 
 **Height Control**
-Adjust the SVG canvas height (200–800 px) without affecting the surrounding layout.
+Resize the SVG canvas height (200–800 px) smoothly without affecting the surrounding layout.
 
-**Five Wave Shapes**
-- Sine: smooth continuous curve
-- Square: sharp digital edges
-- Triangle: geometric peaks
-- Sawtooth: jagged energetic lines
-- Random: unpredictable organic pattern
+**Five Wave Style Presets**
+- Gentle - long, low-frequency swells
+- Rolling - medium double-crest rhythm
+- Choppy - tight angular peaks
+- Stacked - wide-amplitude layered look
+- Flat - near-horizon subtle curve
 
 **Flip**
-Each layer can be flipped vertically, creating mirrored effects or alternating wave directions.
+Toggle all layers vertically to mirror the wave direction - useful for bottom-aligned or inverted designs.
 
 **Animate**
-Enable real-time phase animation to visualize how the waves move over time.
+Real-time phase animation with per-layer independent phase, amplitude, and frequency breathing speeds. Each layer moves at its own rate so they organically separate over time.
 
-**Solid and Gradient Fills**
-Each layer supports:
-- Solid color (color picker)
-- Two-stop linear gradient (start and end color pickers)
+**Randomize (Generate)**
+One click randomizes all layer amplitudes, frequencies, phases, vertical offsets, colors, and wave intensity simultaneously.
 
-**Randomize**
-The "Generate" button randomizes all parameters (amplitudes, frequencies, phases, colors, and wave intensity) to produce a new design instantly.
+---
 
-**Export Options**
-- SVG file download
-- PNG file download (at the current canvas size)
+### Color & Gradient
 
-**Live Preview**
-All changes are rendered immediately in the preview panel.
+**Solid Color**
+Eight pink/lavender presets, a full color picker, and a random hex generator.
+
+**Linear Gradient**
+Four two-stop gradient presets plus a random gradient generator. Gradients are baked into the SVG as `<linearGradient>` defs so they export perfectly.
+
+---
+
+### Details Panel (left sidebar)
+
+A live data panel with three tabs:
+
+**Stats tab**
+- Output resolution (always 3840×2160)
+- Preview width and wave height
+- Estimated SVG file size
+- Layer count, intensity value, estimated visible crests
+- Flip state, color mode, animation status
+- Bézier step count and quality badge
+
+**Layers tab**
+Per-layer breakdown showing base amplitude, base frequency, vertical offset percentage, opacity, flip state, and fill color or gradient for every active layer - updates live as you adjust controls.
+
+**History tab**
+A timestamped action log (up to 50 entries) recording every change: style presets, color changes, layer count adjustments, flips, randomizes, and exports. Each entry shows a relative timestamp (e.g. "just now", "3m ago").
+
+---
+
+### Export
+
+**SVG** - downloads a vector file with the full 3840×2160 viewBox. Scales to any size without quality loss.
+
+**PNG 4K** - renders to an off-screen `<canvas>` at 3840×2160 and exports a lossless PNG.
+
+Both formats support two modes:
+- **With Background** - fills the background with the current theme color (white in light mode, `#0E141B` in dark)
+- **Transparent** - no background rect, just the waves
+
+---
+
+### Persistence (localStorage)
+
+Every setting is automatically saved to `localStorage` under a `bb:` namespace and restored on your next visit - no manual save required.
+
+| Key | What it stores |
+|---|---|
+| `bb:width` | Canvas width |
+| `bb:height` | Canvas height |
+| `bb:waveIntensity` | Wave slider value |
+| `bb:numLayers` | Layer count |
+| `bb:layers` | Full layer config (amp, freq, color, gradient, etc.) |
+| `bb:history` | Action history log |
+| `bb:background` | Background color |
+| `bb:isDark` | Light / dark theme preference |
+
+Writes are debounced (300 ms) so rapid slider drags don't hammer storage. Cross-tab sync is supported via the native `storage` event. Animation phase is intentionally not persisted - it resets on load, which is the correct behavior.
+
+**Reset** - the "↺ Reset to defaults & clear saved state" button in the control panel wipes all wave state back to a single default layer. Theme preference is preserved across resets since it's a UI setting, not wave state.
+
+---
+
+### Theme
+
+Full light and dark mode with a toggle in the header. Your preference is saved to `localStorage` (`bb:isDark`) and applied instantly on every future visit.
 
 ---
 
 ## How It Works
 
-The wave generator constructs an SVG document programmatically using JavaScript.
-For each layer, a series of points is calculated along the x‑axis using a selected waveform function (sine, square, etc.).
-These points are then connected with cubic Bezier curves to create a smooth, continuous path.
+For each layer, 400 evenly-spaced points are calculated along the x-axis using a sine function with the layer's current frequency, amplitude, and phase. These points are connected with cubic Bézier curves (using midpoint control points) to produce a smooth, continuous path. The path is closed to the bottom (or top if flipped) of the canvas, filled with the selected color or gradient, and composed with other layers in reverse z-order.
 
-The path is closed to the bottom of the canvas, filled with the selected color or gradient, and combined with other layers.
-The final SVG string is injected into the preview area and can be exported.
+All geometry is computed in a 3840×2160 internal coordinate space. The SVG uses `viewBox="0 0 3840 2160"` with `preserveAspectRatio="none"` and `width="100%" height="100%"` so it scales perfectly to any container without pixel rounding artifacts.
 
 ---
 
 ## Tech Stack
 
 | Technology | Purpose |
-|------------|---------|
-| React 19   | User interface |
+|---|---|
+| React 19 | UI and state |
 | Tailwind CSS v4 | Styling |
-| Vite 6     | Build tool & development server |
+| Vite 6 | Build tool and dev server |
 | Lucide React | Icons |
-| Custom SVG/Bezier math | Wave generation logic |
+| Custom Bézier math | Wave generation and SVG output |
+| `useLocalStorage` hook | Debounced, cross-tab persistent state |
+
+---
+
+## Project Structure
+
+```
+src/
+├── App.jsx                          # Root layout (3-column: Details | Canvas | Controls)
+├── hooks/
+│   ├── useWaveGenerator.js          # All wave state, actions, and SVG generation
+│   └── useLocalStorage.js           # Generic debounced localStorage hook
+├── lib/
+│   └── waveUtils.js                 # generateWavePath, generateSVG, WAVE_STYLES
+└── components/
+    ├── layout/
+    │   ├── Header.jsx               # Logo, theme toggle, social links
+    │   └── DetailsPanel.jsx         # Stats / Layers / History tabs
+    ├── controls/
+    │   ├── ControlPanel.jsx         # Right sidebar with all controls
+    │   ├── Slider.jsx               # Reusable range slider
+    │   ├── StyleButton.jsx          # Wave preset button with inline SVG icon
+    │   ├── ColorPickerPopover.jsx   # Solid color picker
+    │   ├── GradientPickerPopover.jsx# Gradient picker
+    │   └── DownloadDropdown.jsx     # SVG / PNG export with bg options
+    └── preview/
+        └── WavePreview.jsx          # Renders SVG string into the canvas area
+```
 
 ---
 
@@ -102,7 +188,7 @@ The final SVG string is injected into the preview area and can be exported.
 ### Prerequisites
 
 - Node.js 18 or later
-- npm (or yarn/pnpm)
+- npm (or yarn / pnpm)
 
 ### Installation
 
@@ -119,9 +205,13 @@ npm install
 # Start the development server
 npm run dev
 ```
-The app will be running at `http://localhost:5173.`
 
+The app will be running at `http://localhost:5173`.
 
 ---
 
-<p align="center"> Made with 💜 using React, Tailwind CSS, and a little math.<br /> <strong>Let your backgrounds flow. 🌊</strong> </p><p align="center"> © 2026 BézierBreeze - Open Source MIT </p>
+<p align="center">
+  Made with 💜 using React, Tailwind CSS, and a little math.<br />
+  <strong>Let your backgrounds flow. 🌊</strong>
+</p>
+<p align="center">© 2026 BézierBreeze - Open Source MIT</p>
