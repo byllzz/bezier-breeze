@@ -6,7 +6,6 @@ export const WAVE_STYLES = [
   { id: 'flat', label: 'Flat', frequency: 0.5, amplitude: 25 },
 ];
 
-// SVG paths for the 5 style buttons
 export const WAVE_STYLE_ICONS = {
   gentle: 'M 0 20 C 20 5, 40 35, 60 20 C 80 5, 100 35, 120 20',
   rolling: 'M 0 20 C 15 5, 30 35, 45 20 C 60 5, 75 35, 90 20 C 105 5, 120 35, 135 20',
@@ -15,10 +14,14 @@ export const WAVE_STYLE_ICONS = {
   flat: 'M 0 20 C 40 15, 80 25, 120 20',
 };
 
+export const SVG_INTERNAL_WIDTH = 3840;
+export const SVG_INTERNAL_HEIGHT = 2160;
+
 export function generateWavePath(width, height, layer) {
   const { amplitude = 50, frequency = 1, phase = 0, offsetY = 0.5, flipped = false } = layer;
 
-  const steps = 120; // more steps = cleaner curve
+  // 400 steps for ultra-smooth bezier
+  const steps = 400;
   const centerY = height * offsetY;
   const points = [];
 
@@ -30,7 +33,6 @@ export function generateWavePath(width, height, layer) {
     points.push({ x, y });
   }
 
-  // Build smooth bezier path
   let d = `M ${points[0].x.toFixed(2)} ${points[0].y.toFixed(2)}`;
   for (let i = 0; i < points.length - 1; i++) {
     const p0 = points[i];
@@ -39,7 +41,6 @@ export function generateWavePath(width, height, layer) {
     d += ` C ${cpx.toFixed(2)} ${p0.y.toFixed(2)}, ${cpx.toFixed(2)} ${p1.y.toFixed(2)}, ${p1.x.toFixed(2)} ${p1.y.toFixed(2)}`;
   }
 
-  // FIX: Close path to the top if flipped, otherwise close to the bottom
   if (flipped) {
     d += ` L ${width} 0 L 0 0 Z`;
   } else {
@@ -50,10 +51,21 @@ export function generateWavePath(width, height, layer) {
 }
 
 export function generateSVG(width, height, layers, background = null) {
+  const vw = SVG_INTERNAL_WIDTH;
+  const vh = SVG_INTERNAL_HEIGHT;
+
+  // Scale amplitude relative to internal height
+  const scale = vh / height;
+
   const paths = [...layers]
     .reverse()
     .map(layer => {
-      const d = generateWavePath(width, height, layer);
+      const scaledLayer = {
+        ...layer,
+        amplitude: layer.amplitude * scale,
+        offsetY: layer.offsetY, // offsetY is already a ratio, stays the same
+      };
+      const d = generateWavePath(vw, vh, scaledLayer);
       const gradId = `grad-${layer.id}`;
       const fill = layer.gradient ? `url(#${gradId})` : layer.color;
       const opacity = layer.opacity ?? 0.85;
@@ -70,11 +82,9 @@ export function generateSVG(width, height, layers, background = null) {
     })
     .join('\n');
 
-  const bgRect = background
-    ? `<rect width="${width}" height="${height}" fill="${background}" />`
-    : ''; // transparent by default
+  const bgRect = background ? `<rect width="${vw}" height="${vh}" fill="${background}" />` : '';
 
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="100%" height="100%" preserveAspectRatio="none">
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${vw} ${vh}" width="100%" height="100%" preserveAspectRatio="none">
   ${bgRect}
 ${paths}
 </svg>`;

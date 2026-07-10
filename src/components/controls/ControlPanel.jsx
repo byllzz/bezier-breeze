@@ -22,38 +22,29 @@ export function ControlPanel({
   updateLayerGradient,
   downloadSVG,
   downloadPNG,
+  resetAll,
   isDark,
 }) {
   const [colorMode, setColorMode] = useState('gradient');
   const [activeStyle, setActiveStyle] = useState('gentle');
 
-  // Popover states
   const [colorPopoverOpen, setColorPopoverOpen] = useState(false);
   const [gradientPopoverOpen, setGradientPopoverOpen] = useState(false);
   const [svgDownloadOpen, setSvgDownloadOpen] = useState(false);
   const [pngDownloadOpen, setPngDownloadOpen] = useState(false);
 
-  // Refs for outside click detection
   const colorRef = useRef(null);
   const gradientRef = useRef(null);
   const svgRef = useRef(null);
   const pngRef = useRef(null);
 
-  // Close popovers when clicking outside
   useEffect(() => {
     const handleClickOutside = event => {
-      if (colorRef.current && !colorRef.current.contains(event.target)) {
-        setColorPopoverOpen(false);
-      }
-      if (gradientRef.current && !gradientRef.current.contains(event.target)) {
+      if (colorRef.current && !colorRef.current.contains(event.target)) setColorPopoverOpen(false);
+      if (gradientRef.current && !gradientRef.current.contains(event.target))
         setGradientPopoverOpen(false);
-      }
-      if (svgRef.current && !svgRef.current.contains(event.target)) {
-        setSvgDownloadOpen(false);
-      }
-      if (pngRef.current && !pngRef.current.contains(event.target)) {
-        setPngDownloadOpen(false);
-      }
+      if (svgRef.current && !svgRef.current.contains(event.target)) setSvgDownloadOpen(false);
+      if (pngRef.current && !pngRef.current.contains(event.target)) setPngDownloadOpen(false);
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
@@ -64,26 +55,20 @@ export function ControlPanel({
     applyWaveStyle(style);
   };
 
-  // Random color generator
-  const randomColor = () => {
-    const hue = Math.floor(Math.random() * 360);
-    return `hsl(${hue}, 70%, 60%)`;
-  };
-
-  // Background color for downloads based on theme
   const getBackgroundColor = () => (isDark ? '#0E141B' : '#ffffff');
 
   return (
     <div
-      className={`w-[280px] min-w-[300px] h-[615px] relative top-2 rounded-[8px] scrollbar-none flex overflow-hidden flex-col justify-between transition-colors duration-300 ${isDark ? 'bg-[#0E141B] border border-neutral-800/80' : 'bg-white border-l border-stone-100 text-stone-800'}`}
+      className={`w-[280px] min-w-[300px] h-[615px] relative top-2 rounded-[8px] scrollbar-none flex overflow-hidden flex-col justify-between transition-colors duration-300 ${isDark ? 'bg-[#0E141B]' : 'bg-white border-l border-stone-100 text-stone-800'}`}
     >
       <div className="space-y-6 px-10 pt-8">
-        {/* Master Sliders Layout */}
+        {/* Master Sliders */}
         <div className="space-y-4 pt-4">
+          {/* Waves slider: 0–300  */}
           <Slider
             label="Waves"
             min="0"
-            max="100"
+            max="300"
             value={waveIntensity}
             onChange={setWaveIntensity}
             isDark={isDark}
@@ -108,7 +93,7 @@ export function ControlPanel({
           />
         </div>
 
-        {/* Wave Style Presets Grid */}
+        {/* Wave Style Presets */}
         <div className="grid grid-cols-5 gap-2 pt-2">
           {WAVE_STYLES.map(style => (
             <StyleButton
@@ -121,7 +106,7 @@ export function ControlPanel({
           ))}
         </div>
 
-        {/* Flip & Animate Action Row */}
+        {/* Flip & Animate */}
         <div className="flex gap-3">
           <button
             onClick={flipWaves}
@@ -137,7 +122,7 @@ export function ControlPanel({
               width="512"
               height="512"
               viewBox="0 0 16 16"
-              className="h-4 w-4 dark:text-white flipdown"
+              className="h-4 w-4"
             >
               <g transform="matrix(0.8999999999999999,0,0,0.9,0.8000000000000007,0.7499999999999964)">
                 <path fill="currentColor" d="M1 0l5 6 4.9-6z" />
@@ -159,13 +144,13 @@ export function ControlPanel({
 
           <button
             onClick={toggleAnimation}
-            className={`flex-1 flex items-center justify-center gap-3 px-4 py-1.5 border-2 rounded-[7px] text-[14px] font-semibold transition  cursor-pointer ${
+            className={`flex-1 flex items-center justify-center gap-3 px-4 py-1.5 border-2 rounded-[7px] text-[14px] font-semibold transition cursor-pointer ${
               isDark
                 ? 'bg-[#182635] border-none text-white'
                 : 'bg-white border-stone-200 text-stone-800 hover:bg-stone-50'
             }`}
           >
-            Animate
+            {animating ? 'Pause' : 'Animate'}
             <svg
               width="18"
               height="10"
@@ -181,10 +166,8 @@ export function ControlPanel({
           </button>
         </div>
 
-        {/* Color Mode Option G */}
-        <div
-          className={`flex gap-4 justify-center pb-2.5 ${isDark ? 'border-neutral-800' : 'border-stone-50'}`}
-        >
+        {/* Color Mode */}
+        <div className={`flex gap-4 justify-center pb-2.5`}>
           <ColorPickerPopover
             colorRef={colorRef}
             colorMode={colorMode}
@@ -207,41 +190,48 @@ export function ControlPanel({
           />
         </div>
 
-        {/* Main Generate Action Button */}
-        <button
-          onClick={randomizeAll}
-          className={`w-full py-3 px-3 rounded-[8px] text-sm font-medium transition-all flex items-center justify-center gap-3 shadow-md group relative bottom-3 cursor-pointer ${
-            isDark
-              ? 'bg-[#182635] text-white hover:bg-neutral-800 border border-neutral-700/80'
-              : 'bg-black text-white hover:bg-stone-900'
-          }`}
-        >
-          <span className="font-medium tracking-tight text-[16px]">Generate</span>
-          <svg
-            className="w-5 h-5 group-hover:rotate-45 transition-transform"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
+        {/* Generate Button */}
+        <div className="relative bottom-3 space-y-2">
+          <button
+            onClick={randomizeAll}
+            className={`w-full py-3 px-3 rounded-[8px] text-sm font-medium transition-all flex items-center justify-center gap-3 shadow-md group cursor-pointer ${
+              isDark
+                ? 'bg-[#182635] text-white hover:bg-neutral-800 border border-neutral-700/80'
+                : 'bg-black text-white hover:bg-stone-900'
+            }`}
           >
-            <circle cx="12" cy="12" r="10" />
-            <circle cx="12" cy="12" r="6" />
-            <circle cx="12" cy="12" r="1" fill="currentColor" />
-          </svg>
-        </button>
+            <span className="font-medium tracking-tight text-[16px]">Generate</span>
+            <svg
+              className="w-5 h-5 group-hover:rotate-45 transition-transform"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <circle cx="12" cy="12" r="6" />
+              <circle cx="12" cy="12" r="1" fill="currentColor" />
+            </svg>
+          </button>
+          <button
+            onClick={resetAll}
+            className={`w-full py-1.5 text-[11px] font-medium rounded-[6px] transition-colors cursor-pointer ${
+              isDark ? 'text-stone-600 hover:text-stone-400' : 'text-stone-400 hover:text-stone-600'
+            }`}
+          >
+            ↺ Reset to defaults &amp; clear saved state
+          </button>
+        </div>
       </div>
 
-      {/* Export Section*/}
+      {/* Export Section */}
       <div
-        className={`rounded-[8px] relative h-[150px] p-4 space-y-10 shadow-inner transition-all duration-300 bg-gradient-to-br from-cyan-200 via-blue-200 to-indigo-200`}
+        className={`rounded-[8px] relative h-[150px] p-4 space-y-4 shadow-inner transition-all duration-300 bg-gradient-to-br from-cyan-200 via-blue-200 to-indigo-200`}
       >
         <div
           className={`absolute inset-0 rounded-[8px] bg-gradient-to-tr from-transparent via-white/10 to-transparent animate-pulse pointer-events-none`}
         />
-
-        <p className={`text-[14px] relative top-2 font-medium tracking-wide text-black! `}>
-          Download/Export
-        </p>
+        <p className={`text-[14px]  font-medium tracking-wide text-black!`}>Download/Export</p>
         <div className="grid grid-cols-2 gap-3 relative z-10 px-1">
           <DownloadDropdown
             dropdownRef={svgRef}
@@ -253,7 +243,7 @@ export function ControlPanel({
           />
           <DownloadDropdown
             dropdownRef={pngRef}
-            label="PNG"
+            label="PNG 4K"
             isOpen={pngDownloadOpen}
             setIsOpen={setPngDownloadOpen}
             setOtherOpen={setSvgDownloadOpen}
